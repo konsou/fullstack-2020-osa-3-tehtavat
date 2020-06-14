@@ -27,12 +27,19 @@ let persons =
       }
     ]
 
-    const generateId = () => {
-        const maxId = persons.length > 0
-        ? Math.max(...persons.map(person => person.id))
-        : 0
-        return maxId + 1
-    }    
+const generateId = () => {
+    const maxId = persons.length > 0
+    ? Math.max(...persons.map(person => person.id))
+    : 0
+    return maxId + 1
+}    
+
+app.get('/info', (request, response) => {
+    console.log(`GET info`)
+    const body = `<p>Phonebook has ${persons.length} persons</p>
+    <p>${new Date().toString()}</p>`
+    response.send(body)
+})
 
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
