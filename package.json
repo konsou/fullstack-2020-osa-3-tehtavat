@@ -1,0 +1,11 @@
+{
+  "name": "fullstack-2020-osa-3",
+  "version": "1.0.0",
+  "description": "Fullstack 2020 -kurssin osan 3 tehtävät",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tomi Javanainen",
+  "license": "MIT"
+}
