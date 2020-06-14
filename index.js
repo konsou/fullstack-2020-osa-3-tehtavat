@@ -1,7 +1,14 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
+
+const unknownEndpoint = (request, response, next) => {
+    response.status(404).send({ error: 'Unknown endpoint' })
+}
 
 app.use(express.json())
+app.use(morgan('tiny'))
+
 
 let persons = 
     [
@@ -96,6 +103,8 @@ app.get('/api/persons', (request, response) => {
     console.log(`GET persons`)
     response.json(persons)
 })
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 
