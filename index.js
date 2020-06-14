@@ -2,12 +2,20 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 
+morgan.token('body', request => {
+    if (Object.keys(request.body).length > 0) {
+        return JSON.stringify(request.body)
+    } else {
+        return ""
+    }
+})
+
 const unknownEndpoint = (request, response, next) => {
     response.status(404).send({ error: 'Unknown endpoint' })
 }
 
 app.use(express.json())
-app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :body :res[content-length] - :response-time ms'))
 
 
 let persons = 
@@ -39,7 +47,7 @@ const generateId = () => {
 }    
 
 app.get('/info', (request, response) => {
-    console.log(`GET info`)
+    //console.log(`GET info`)
     const body = `<p>Phonebook has ${persons.length} persons</p>
     <p>${new Date().toString()}</p>`
     response.send(body)
@@ -47,7 +55,7 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
-    console.log(`GET person ${id}`)
+    //console.log(`GET person ${id}`)
     const person = persons.find(person => person.id === id)
     console.log(person)
 
@@ -59,7 +67,7 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-    console.log(`POST person`)
+    //console.log(`POST person`)
     const body = request.body
 
     if (!body.name) {
@@ -94,13 +102,13 @@ app.post('/api/persons', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
-    console.log(`DELETE person ${id}`)
+    // console.log(`DELETE person ${id}`)
     persons = persons.filter(person => person.id !== id)
     response.status(204).end()
 })
 
 app.get('/api/persons', (request, response) => {
-    console.log(`GET persons`)
+    // console.log(`GET persons`)
     response.json(persons)
 })
 
