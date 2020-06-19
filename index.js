@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
+const cors = require('cors')
 
 morgan.token('body', request => {
     if (Object.keys(request.body).length > 0) {
@@ -16,6 +17,7 @@ const unknownEndpoint = (request, response, next) => {
 
 app.use(express.json())
 app.use(morgan(':method :url :status :body :res[content-length] - :response-time ms'))
+app.use(cors())
 
 
 let persons = 
