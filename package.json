@@ -11,6 +11,7 @@
     "deploy:full": "npm run build:frontend && git add . && git commit -m frontend-build && npm run deploy",
     "build:frontend": "del /s /q build && cd ..\\fullstack-2020\\osa3\\puhelinluettelo-frontend && npm run build && xcopy /e build ..\\..\\..\\fullstack-2020-osa-3-tehtavat\\build"
   },
+  
   "author": "Tomi Javanainen",
   "license": "MIT",
   "devDependencies": {
