@@ -1,7 +1,15 @@
+if (process.env.NODE_ENV !== 'production'){
+    const dotenv = require('dotenv')
+    dotenv.config()
+}
+
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
+
+const Person = require('./models/person')
+const ObjectId = require('mongodb').ObjectID;
 
 morgan.token('body', request => {
     if (Object.keys(request.body).length > 0) {
@@ -21,39 +29,23 @@ app.use(cors())
 app.use(express.static('build'))
 
 
-let persons = 
-    [
-      {
-        "name": "Perkki Antinheimo",
-        "number": "123",
-        "id": 1
-      },
-      {
-        "name": "ZZZygyzy Xergez",
-        "number": "201211hff",
-        "id": 4
-      },
-      {
-        "name": "Jussi",
-        "number": "999",
-        "id": 6
-      },
-      {
-        "name": "Päntti",
-        "number": "73 523",
-        "id": 7
-      }
-    ]
-
-const generateId = () => {
-    return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
-}    
-
 app.get('/info', (request, response) => {
     //console.log(`GET info`)
-    const body = `<p>Phonebook has ${persons.length} persons</p>
-    <p>${new Date().toString()}</p>`
-    response.send(body)
+    Person.countDocuments({})
+        .then((count) => {
+            const body = `<p>Phonebook has ${count} persons</p>
+            <p>${new Date().toString()}</p>`
+            response.send(body)
+        })
+    
+})
+
+app.get('/api/persons', (request, response) => {
+    // console.log(`GET persons`)
+    Person.find({})
+        .then((persons) => {
+            response.json(persons)
+        })
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -110,14 +102,10 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end()
 })
 
-app.get('/api/persons', (request, response) => {
-    // console.log(`GET persons`)
-    response.json(persons)
-})
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`)
