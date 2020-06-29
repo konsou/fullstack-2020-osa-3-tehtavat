@@ -79,22 +79,37 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    if (persons.some(person => person.name === body.name)) {
-        return response.status(400).json({
-            error: `${body.name} already exists - name must be unique`
+    console.log('checking for duplicates...')
+
+    // check for duplicate
+    Person.findOne({ name: body.name })
+        .then(duplicatePerson =>{
+            if (duplicatePerson !== null) {
+                console.log(`${body.name} already exists`)
+                console.log(duplicatePerson)
+                return response.status(400).json({
+                    error: `${body.name} already exists - name must be unique`
+                })
+            } else {
+                // no duplicate found
+                console.log('duplicate check passed')
+                const person = new Person({
+                    name: body.name,
+                    number: body.number
+                })
+            
+                person.save().then(savedPerson => {
+                    console.log('saved', savedPerson.name)
+                    response.json(savedPerson)
+                })  
+                .catch(error => {
+                    console.log('error saving person', error)
+                })
+            }
         })
-    }
-
-    const person = {
-        name: body.name,
-        number: body.number,
-        id: generateId()
-    }
-
-    console.log(person)
-
-    persons = persons.concat(person)
-    response.json(person)
+        .catch(err => {
+            console.log('error checking for duplicates', err)
+        })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
