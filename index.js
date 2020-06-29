@@ -113,10 +113,18 @@ app.post('/api/persons', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
+    const id = request.params.id
     // console.log(`DELETE person ${id}`)
-    persons = persons.filter(person => person.id !== id)
-    response.status(204).end()
+    Person.deleteOne({ "_id": ObjectId(id) })
+        .then(response2 => {
+            console.log(`deleted ${response2.deletedCount} persons`)
+            response2.deletedCount
+                ? response.status(204).send()
+                : response.status(404).send()
+        })
+        .catch(error => {
+            console.log('error deleting:', error)
+        })
 })
 
 
