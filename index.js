@@ -19,17 +19,13 @@ morgan.token('body', request => {
     }
 })
 
-const unknownEndpoint = (request, response, next) => {
-    response.status(404).send({ error: 'Unknown endpoint' })
-}
-
 app.use(express.json())
 app.use(morgan(':method :url :status :body :res[content-length] - :response-time ms'))
 app.use(cors())
 app.use(express.static('build'))
 
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
     //console.log(`GET info`)
     Person.countDocuments({})
         .then((count) => {
@@ -37,33 +33,34 @@ app.get('/info', (request, response) => {
             <p>${new Date().toString()}</p>`
             response.send(body)
         })
-    
+        .catch(error => next(error))
 })
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
     // console.log(`GET persons`)
     Person.find({})
         .then((persons) => {
             response.json(persons)
         })
+        .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
     //console.log(`GET person ${id}`)
     Person.findById(id)
         .then((person) => {
-            console.log(person)
-            response.json(person)            
+            if (person){
+                console.log(person)
+                response.json(person)            
+            } else {
+                response.status(404).send()
+            }
         })
-        .catch(error =>{
-            console.log('ERROR')
-            console.log(error)
-            response.status(404).end()
-        })
+        .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     //console.log(`POST person`)
     const body = request.body
 
@@ -102,17 +99,15 @@ app.post('/api/persons', (request, response) => {
                     console.log('saved', savedPerson.name)
                     response.json(savedPerson)
                 })  
-                .catch(error => {
-                    console.log('error saving person', error)
-                })
+                // error saving person
+                .catch(error => next(error))
             }
         })
-        .catch(err => {
-            console.log('error checking for duplicates', err)
-        })
+        // error checking for duplpicates (eg. no internet connection)
+        .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
     // console.log(`DELETE person ${id}`)
     Person.deleteOne({ "_id": ObjectId(id) })
@@ -122,13 +117,32 @@ app.delete('/api/persons/:id', (request, response) => {
                 ? response.status(204).send()
                 : response.status(404).send()
         })
-        .catch(error => {
-            console.log('error deleting:', error)
-        })
+        // malformatted id
+        .catch(error => next(error))
 })
 
+const unknownEndpoint = (request, response, next) => {
+    response.status(404).send({ error: 'Unknown endpoint' })
+}
 
 app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+    console.error('ERROR CAUGHT BY HANDLER:')
+    console.error(`${error.name}: ${error.message}`)
+    //console.error(error.message)
+
+    if (error.name === 'CastError'){
+        return response.status(400).send({ error: 'malformatted id'})
+    } else if (error.name === 'MongooseServerSelectionError'){
+        return response.status(500).send({ error: 'couldn\'t connect to Mongoose server'})
+    } else {
+        return response.status(500).send({ error: 'generic error'})
+    }
+}
+
+app.use(errorHandler)
+
 
 const PORT = process.env.PORT
 
