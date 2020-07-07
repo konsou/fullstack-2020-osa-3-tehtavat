@@ -125,7 +125,7 @@ app.put('/api/persons/:id', (request, response, next) => {
         updatedPerson)
             .then(response2 => {
                 
-                console.log(response2)
+                //console.log(response2)
                 if (response2.nModified){
                     console.log('updated person')
                     response.json(updatedPerson)
