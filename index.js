@@ -107,6 +107,37 @@ app.post('/api/persons', (request, response, next) => {
         .catch(error => next(error))
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+    //console.log(request)
+    const id = request.params.id
+    const body = request.body
+    const updatedPerson = {
+        id: id,
+        name: body.name,
+        number: body.number
+    }
+
+    // console.log(`PUT request for ${id}`)
+    //console.log(body)
+    //console.log(updatedPerson)
+    Person.replaceOne(
+        { name: body.name }, 
+        updatedPerson)
+            .then(response2 => {
+                
+                console.log(response2)
+                if (response2.nModified){
+                    console.log('updated person')
+                    response.json(updatedPerson)
+                } else {
+                    console.log('didn\'t update person')
+                    response.status(500).send()
+                }
+                
+            })
+            .catch(error => next(error))
+})
+
 app.delete('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
     // console.log(`DELETE person ${id}`)
