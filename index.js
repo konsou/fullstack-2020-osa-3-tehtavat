@@ -80,7 +80,7 @@ app.post('/api/persons', (request, response, next) => {
 
     // check for duplicate
     Person.findOne({ name: body.name })
-        .then(duplicatePerson =>{
+        .then(duplicatePerson => {
             if (duplicatePerson !== null) {
                 console.log(`${body.name} already exists`)
                 console.log(duplicatePerson)
@@ -111,29 +111,28 @@ app.put('/api/persons/:id', (request, response, next) => {
     //console.log(request)
     const id = request.params.id
     const body = request.body
-    const updatedPerson = {
-        id: id,
+    const updatedPerson = new Person({
+        "_id": ObjectId(id),
         name: body.name,
         number: body.number
-    }
+    })
 
     // console.log(`PUT request for ${id}`)
     //console.log(body)
     //console.log(updatedPerson)
-    Person.replaceOne(
+    Person.updateOne(
         { name: body.name }, 
-        updatedPerson)
+        { $set: { name: body.name, number: body.number } }
+        )
             .then(response2 => {
-                
                 //console.log(response2)
                 if (response2.nModified){
-                    console.log('updated person')
+                    console.log('updated person', updatedPerson)
                     response.json(updatedPerson)
                 } else {
                     console.log('didn\'t update person')
                     response.status(500).send()
                 }
-                
             })
             .catch(error => next(error))
 })
