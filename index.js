@@ -98,11 +98,10 @@ app.put('/api/persons/:id', (request, response, next) => {
             //console.log(response2)
             if (response2.nModified){
                 console.log('updated person', updatedPerson)
-                response.json(updatedPerson)
             } else {
-                console.log('didn\'t update person')
-                response.status(500).send()
+                console.log('didn\'t update person - probably data didn\'t change')
             }
+            response.json(updatedPerson)
         })
         .catch(error => next(error))
 })
