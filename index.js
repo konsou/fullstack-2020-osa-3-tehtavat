@@ -64,47 +64,16 @@ app.post('/api/persons', (request, response, next) => {
     //console.log(`POST person`)
     const body = request.body
 
-    if (!body.name) {
-        return response.status(400).json({
-            error: 'Missing name'
-        })
-    }
-
-    if (!body.number) {
-        return response.status(400).json({
-            error: 'Missing number'
-        })
-    }
-
-    console.log('checking for duplicates...')
-
-    // check for duplicate
-    Person.findOne({ name: body.name })
-        .then(duplicatePerson => {
-            if (duplicatePerson !== null) {
-                console.log(`${body.name} already exists`)
-                console.log(duplicatePerson)
-                return response.status(400).json({
-                    error: `${body.name} already exists - name must be unique`
-                })
-            } else {
-                // no duplicate found
-                console.log('duplicate check passed')
-                const person = new Person({
-                    name: body.name,
-                    number: body.number
-                })
+    const person = new Person({
+        name: body.name,
+        number: body.number
+    })
             
-                person.save().then(savedPerson => {
-                    console.log('saved', savedPerson.name)
-                    response.json(savedPerson)
-                })  
-                // error saving person
-                .catch(error => next(error))
-            }
-        })
-        // error checking for duplpicates (eg. no internet connection)
-        .catch(error => next(error))
+    person.save().then(savedPerson => {
+        console.log('saved', savedPerson.name)
+        response.json(savedPerson)
+    })  
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -121,8 +90,9 @@ app.put('/api/persons/:id', (request, response, next) => {
     //console.log(body)
     //console.log(updatedPerson)
     Person.updateOne(
-        { name: body.name }, 
-        { $set: { name: body.name, number: body.number } }
+        { "_id": id }, 
+        { $set: { name: body.name, number: body.number } },
+        { runValidators: true, context: 'query' }
         )
             .then(response2 => {
                 //console.log(response2)
@@ -164,6 +134,8 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'CastError'){
         return response.status(400).send({ error: 'malformatted id'})
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).send({ error: error.message})
     } else if (error.name === 'MongooseServerSelectionError'){
         return response.status(500).send({ error: 'couldn\'t connect to Mongoose server'})
     } else {
