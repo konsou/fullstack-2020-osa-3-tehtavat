@@ -9,12 +9,20 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "git push heroku master && heroku logs --tail",
     "deploy:full": "npm run build:frontend && git add . && git commit -m frontend-build && npm run deploy",
-    "build:frontend": "del /s /q build && cd ..\\fullstack-2020\\osa3\\puhelinluettelo-frontend && npm run build && xcopy /e build ..\\..\\..\\fullstack-2020-osa-3-tehtavat\\build"
+    "build:frontend": "del /s /q build && cd ..\\fullstack-2020\\osa3\\puhelinluettelo-frontend && npm run build && xcopy /e build ..\\..\\..\\fullstack-2020-osa-3-tehtavat\\build",
+    "lint": "eslint ."
   },
   "author": "Tomi Javanainen",
   "license": "MIT",
   "devDependencies": {
     "dotenv": "^8.2.0",
+    "eslint": "^7.4.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.0",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
     "nodemon": "^2.0.4"
   },
   "dependencies": {
