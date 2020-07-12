@@ -9,13 +9,13 @@ const morgan = require('morgan')
 const cors = require('cors')
 
 const Person = require('./models/person')
-const ObjectId = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectID
 
 morgan.token('body', request => {
     if (Object.keys(request.body).length > 0) {
         return JSON.stringify(request.body)
     } else {
-        return ""
+        return ''
     }
 })
 
@@ -52,7 +52,7 @@ app.get('/api/persons/:id', (request, response, next) => {
         .then((person) => {
             if (person){
                 console.log(person)
-                response.json(person)            
+                response.json(person)
             } else {
                 response.status(404).send()
             }
@@ -68,12 +68,12 @@ app.post('/api/persons', (request, response, next) => {
         name: body.name,
         number: body.number
     })
-            
+
     person.save().then(savedPerson => {
         console.log('saved', savedPerson.name)
         response.json(savedPerson)
-    })  
-    .catch(error => next(error))
+    })
+        .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -81,7 +81,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
     const body = request.body
     const updatedPerson = new Person({
-        "_id": ObjectId(id),
+        '_id': ObjectId(id),
         name: body.name,
         number: body.number
     })
@@ -90,27 +90,27 @@ app.put('/api/persons/:id', (request, response, next) => {
     //console.log(body)
     //console.log(updatedPerson)
     Person.updateOne(
-        { "_id": id }, 
+        { '_id': id },
         { $set: { name: body.name, number: body.number } },
         { runValidators: true, context: 'query' }
-        )
-            .then(response2 => {
-                //console.log(response2)
-                if (response2.nModified){
-                    console.log('updated person', updatedPerson)
-                    response.json(updatedPerson)
-                } else {
-                    console.log('didn\'t update person')
-                    response.status(500).send()
-                }
-            })
-            .catch(error => next(error))
+    )
+        .then(response2 => {
+            //console.log(response2)
+            if (response2.nModified){
+                console.log('updated person', updatedPerson)
+                response.json(updatedPerson)
+            } else {
+                console.log('didn\'t update person')
+                response.status(500).send()
+            }
+        })
+        .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
     // console.log(`DELETE person ${id}`)
-    Person.deleteOne({ "_id": ObjectId(id) })
+    Person.deleteOne({ '_id': ObjectId(id) })
         .then(response2 => {
             console.log(`deleted ${response2.deletedCount} persons`)
             response2.deletedCount
@@ -133,13 +133,13 @@ const errorHandler = (error, request, response, next) => {
     //console.error(error.message)
 
     if (error.name === 'CastError'){
-        return response.status(400).send({ error: 'malformatted id'})
+        return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
-        return response.status(400).send({ error: error.message})
+        return response.status(400).send({ error: error.message })
     } else if (error.name === 'MongooseServerSelectionError'){
-        return response.status(500).send({ error: 'couldn\'t connect to Mongoose server'})
+        return response.status(500).send({ error: 'couldn\'t connect to Mongoose server' })
     } else {
-        return response.status(500).send({ error: 'generic error'})
+        return response.status(500).send({ error: 'generic error' })
     }
 }
 

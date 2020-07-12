@@ -29,21 +29,21 @@ if (name === undefined) {
         result.forEach(person => console.log(person.name, person.number))
         mongoose.connection.close()
     })
-    
+
 } else {
     // add given person
     const person = new Person({
         name: name,
         number: number,
     })
-    
+
     person.save().then(response => {
         console.log(`added ${response.name} number ${response.number} to phonebook`)
         //console.log(response)
         mongoose.connection.close()
     })
-    
-    
+
+
 }
 
 
